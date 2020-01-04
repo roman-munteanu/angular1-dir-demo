@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+  <head>
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.9/angular.min.js"></script>-->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular.min.js"></script>
+  </head>
+  <body ng-app="directivesModule">
+
+    <div ng-controller="MyController">
+      <div my-customer></div>
+    </div>
+
+    <div ng-controller="AnotherController">
+      AnotherController
+    </div>
+
+
+    <script type="text/javascript">
+      var app = angular.module('directivesModule', []);
+
+      app.controller('MyController', ['$scope', function($scope) {
+
+        $scope.customer = {
+          name: 'DefaultName',
+          address: 'DefaultAddress'
+        };
+
+        $scope.$on('data-received-event', function(event, args) {
+          // console.log('args:');
+          // console.log(args);
+          $scope.customer = args.data;
+        });
+
+      }])
+      .directive('myCustomer', function() {
+        return {
+          template: 'Name: {{customer.name}} Address: {{customer.address}}'
+        };
+      });
+
+        app.controller('AnotherController', ['$scope', '$rootScope', '$q', function($scope, $rootScope, $q) {
+
+          function requestToServer() {
+
+            var defer = $q.defer();
+
+            setTimeout(function() {
+              defer.resolve({
+                name: 'TestName',
+                address: 'TestAddress'
+              });
+            }, 1000);
+
+            return defer.promise;
+          };
+
+          requestToServer().then(function(result) {
+            $rootScope.$broadcast('data-received-event', {data: result});
+          });
+        }]);
+
+
+
+    </script>
+
+  </body>
+</html>
+
